@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+//обработчик одного пользователя
 public class ClientHandler {
     Server server;//наш сервер
     Socket socket;
@@ -30,13 +31,13 @@ public class ClientHandler {
                                 System.out.println("Client out");
                                 break;
                             }
-                            out.writeUTF(msg + "\n");
-                            System.out.println("Client send msg: " + msg);
+                            server.sendToAllMsg(msg);//отправка сообщения
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
                         try {
+                            out.writeUTF("/end");
                             socket.close();
                             in.close();
                             out.close();
@@ -46,6 +47,14 @@ public class ClientHandler {
                     }
                 }
             }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMsg(String msg) {
+        try {
+            out.writeUTF(msg + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

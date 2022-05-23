@@ -28,4 +28,20 @@ public class Server {
             e.printStackTrace();
         }
     }
+    
+    public void sendToAllMsg(String msg) {
+        System.out.println("Client send msg: " + msg);
+        for (ClientHandler client :
+                clients) {
+            client.sendMsg(msg);
+        }
+    }
+
+    public void subscribe() {
+
+    }
+
+    public void unsubscribe() {
+
+    }
 }
