@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="mka.chat.client.ClientController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="529.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mka.chat.client.ClientController">
+    <children>
+        <TextArea fx:id="textArea" editable="false" layoutX="97.0" layoutY="4.0" prefHeight="354.0" prefWidth="335.0" />
+        <TextField fx:id="textField" layoutX="97.0" layoutY="361.0" prefHeight="25.0" prefWidth="277.0" onAction="#sendMsg"/>
+        <Button fx:id="buttonSend" layoutX="391.0" layoutY="361.0" mnemonicParsing="false" onAction="#sendMsg" text="&gt;&gt;&gt;" />
+    </children>
+</AnchorPane>
