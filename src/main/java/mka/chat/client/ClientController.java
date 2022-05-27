@@ -2,10 +2,9 @@ package mka.chat.client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,13 +13,28 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ClientController implements Initializable {
+public class ClientController {
     @FXML
     private Button buttonSend;
     @FXML
     private TextArea textArea;
     @FXML
     private TextField textField;
+
+
+    @FXML
+    TextField loginField;
+    @FXML
+    PasswordField passwordField;
+    @FXML
+    Button authButton;
+    @FXML
+    TextArea authTextArea;
+
+    @FXML
+    VBox authorizationPanel;
+    @FXML
+    HBox chatPanel;
 
     String IP_ADDRESS = "localhost";
     int PORT = 8080;
@@ -39,8 +53,7 @@ public class ClientController implements Initializable {
         }
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void connect() {
         try {
             socket = new Socket(IP_ADDRESS, PORT);
             in = new DataInputStream(socket.getInputStream());
@@ -72,6 +85,17 @@ public class ClientController implements Initializable {
             }).start();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void auth() {
+        if (loginField.getText().isBlank() || passwordField.getText().isBlank()) {
+            authTextArea.clear();
+            authTextArea.appendText("Введите Логин/Пароль");
+            return;
+        }
+        if (socket == null || socket.isClosed()) {
+            connect();
         }
     }
 }
