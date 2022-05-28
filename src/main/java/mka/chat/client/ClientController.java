@@ -1,5 +1,6 @@
 package mka.chat.client;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -10,6 +11,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -20,6 +22,8 @@ public class ClientController {
     private TextArea textArea;
     @FXML
     private TextField textField;
+    @FXML
+    ListView<String> clientList;
 
 
     @FXML
@@ -43,11 +47,18 @@ public class ClientController {
     DataInputStream in;
     DataOutputStream out;
 
+    public void setActive() {
+        chatPanel.setVisible(true);
+        authorizationPanel.setVisible(false);
+    }
+
     public void sendMsg() {
         try {
-            out.writeUTF(textField.getText());
-            textField.clear();
-            textField.requestFocus();
+            if (!textField.getText().isEmpty()) {
+                out.writeUTF(textField.getText());
+                textField.clear();
+                textField.requestFocus();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,10 +74,51 @@ public class ClientController {
                 @Override
                 public void run() {
                     try {
+                        //авторизация
                         while (true) {
-                            String msg = in.readUTF();
-                            textArea.appendText(msg);
-                            if (msg.equals("/end")) {
+                            try {
+                                String str = in.readUTF();
+                                if (str.startsWith("/authok")) {
+                                    setActive();
+                                    textArea.appendText(str);
+                                    break;
+                                } else {
+                                    authTextArea.clear();
+                                    authTextArea.appendText(str);
+                                }
+                            } catch (SocketException e) {
+                                System.out.println("Server don't callback");
+                                break;
+                            }
+                        }
+
+                        //сообщения
+                        while (true) {
+                            try {
+                                String msg = in.readUTF();
+                                if (msg.startsWith("/")) {
+                                    if (msg.startsWith("/show")) {
+                                        String[] nicknames = msg.split(" ");
+
+                                        Platform.runLater(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                clientList.getItems().clear();
+
+                                                for (int i = 1; i < nicknames.length; i++) {
+                                                    clientList.getItems().add(nicknames[i]);
+                                                }
+                                            }
+                                        });
+                                    }
+                                    if (msg.equals("/end")) {
+                                        break;
+                                    }
+                                } else {
+                                    textArea.appendText(msg);
+                                }
+                            } catch (SocketException e){
+                                System.out.println("Server don't callback");
                                 break;
                             }
                         }
@@ -96,6 +148,13 @@ public class ClientController {
         }
         if (socket == null || socket.isClosed()) {
             connect();
+        }
+        try {
+            out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
+            loginField.clear();
+            passwordField.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
