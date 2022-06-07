@@ -31,11 +31,12 @@ public class ClientHandler {
                 @Override
                 public void run() {
                     try {
+                        String[] creds;
                         //авторизация
                         while (true) {
                             String account = in.readUTF();
                             if (account.startsWith("/auth")) {
-                                String[] creds = account.split(" ");
+                                creds = account.split(" ");
                                 nickname = AuthServer.getNickByLoginPassword(creds[1], creds[2]);
 
                                 if (isUserCorrect(nickname, server)) {
@@ -47,15 +48,30 @@ public class ClientHandler {
                         //сообщения
                         while (true) {
                             String msg = in.readUTF();
-                            if (msg.equals("/end")) {
-                                out.writeUTF("/end");
-                                System.out.println("Client " + nickname + " out");
-                                break;
+                            if (msg.startsWith("/")) {
+                                if (msg.equals("/end")) {
+                                    out.writeUTF("/end");
+                                    System.out.println("Client " + nickname + " out");
+                                    break;
+                                }
+                                if (msg.startsWith("/show")){
+                                    server.sendOnlineUsers();
+                                }
+                                if (msg.startsWith("/getMyProfile")) {
+                                    out.writeUTF("/getMyProfile Логин: " + creds[1] + "\nНик: " + nickname);
+                                }
+                                if (msg.startsWith("/newNick")) {
+                                    String newNick = msg.substring(8);
+                                    if (server.isNickFree(newNick)) {
+                                        AuthServer.changeNickByLogin(newNick, creds[1]);
+                                        nickname = AuthServer.getNickByLoginPassword(creds[1], creds[2]);
+                                        out.writeUTF("/newNick Логин: " + creds[1] + "\nНик: " + nickname);
+                                    }
+                                    server.sendOnlineUsers();
+                                }
+                            } else {
+                                server.sendToAllMsg(nickname + ": " + msg);//отправка сообщения
                             }
-                            if (msg.startsWith("/show")){
-                                server.sendOnlineUsers();
-                            }
-                            server.sendToAllMsg(nickname + ": " + msg);//отправка сообщения
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
