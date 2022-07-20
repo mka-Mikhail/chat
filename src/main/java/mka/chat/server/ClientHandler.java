@@ -46,16 +46,26 @@ public class ClientHandler {
 
                         //сообщения
                         while (true) {
-                            String msg = in.readUTF();
-                            if (msg.equals("/end")) {
-                                out.writeUTF("/end");
-                                System.out.println("Client " + nickname + " out");
-                                break;
+                            String str = in.readUTF();
+                            if (str.startsWith("/")) {
+                                if (str.equals("/end")) {
+                                    out.writeUTF("/end");
+                                    System.out.println("Client " + nickname + " out");
+                                    break;
+                                }
+                                if (str.startsWith("/show")){
+                                    server.sendOnlineUsers();
+                                }
+                                //личные сообщения
+                                if (str.startsWith("/w")) {
+                                    String[] personalMsg = str.split(" ");
+                                    String nickTo = personalMsg[1];
+                                    String msg = str.substring(3 + nickTo.length());
+                                    server.sendToClient(nickTo, ClientHandler.this, msg);
+                                }
+                                continue;
                             }
-                            if (msg.startsWith("/show")){
-                                server.sendOnlineUsers();
-                            }
-                            server.sendToAllMsg(nickname + ": " + msg);//отправка сообщения
+                            server.sendToAllMsg(nickname + ": " + str);//отправка сообщения
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -35,7 +35,20 @@ public class Server {
         }
         AuthServer.disconnect();
     }
-    
+
+    //для личных сообщений
+    public void sendToClient(String nickTo, ClientHandler nickFrom, String msg) {
+        for (ClientHandler client :
+                clients) {
+            if (client.getNickname().equals(nickTo)) {
+                client.sendMsg("от " + nickFrom.getNickname() + ": " + msg);
+                nickFrom.sendMsg("клиенту " + nickTo + ": " + msg);
+                return;
+            }
+        }
+        nickFrom.sendMsg(nickTo + " не в чате");
+    }
+
     public void sendToAllMsg(String msg) {
         for (ClientHandler client :
                 clients) {

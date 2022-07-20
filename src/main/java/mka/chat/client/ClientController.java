@@ -16,6 +16,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ClientController {
+
+    @FXML
+    public Label labelYouDisconnect;
+
     @FXML
     private Button buttonSend;
     @FXML
@@ -24,7 +28,6 @@ public class ClientController {
     private TextField textField;
     @FXML
     ListView<String> clientList;
-
 
     @FXML
     TextField loginField;
@@ -112,6 +115,7 @@ public class ClientController {
                                         });
                                     }
                                     if (msg.equals("/end")) {
+                                        labelYouDisconnect.setVisible(true);
                                         break;
                                     }
                                 } else {
