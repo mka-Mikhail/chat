@@ -38,4 +38,13 @@ public class AuthServer {
             e.printStackTrace();
         }
     }
+
+    public static void changeNickByLogin(String newNick, String login) {
+        String query = String.format("update users set nickname = '%s' where login = '%s'", newNick, login);
+        try {
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

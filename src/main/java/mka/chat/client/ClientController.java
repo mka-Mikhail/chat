@@ -2,9 +2,9 @@ package mka.chat.client;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.io.DataInputStream;
@@ -12,14 +12,29 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class ClientController {
 
+    //Сообщение при отключении от сервера
     @FXML
-    public Label labelYouDisconnect;
+    private Label labelYouDisconnect;
 
+    //Окно информации о пользователе
+    @FXML
+    private Pane paneTools;
+    @FXML
+    private TextArea infoTextArea;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button changeNickButton;
+    @FXML
+    private Button backButton;
+    @FXML
+    private TextField newNickTextField;
+
+
+    //Элементы окна чата
     @FXML
     private Button buttonSend;
     @FXML
@@ -27,24 +42,26 @@ public class ClientController {
     @FXML
     private TextField textField;
     @FXML
-    ListView<String> clientList;
+    private ListView<String> clientList;
+    @FXML
+    private HBox chatPanel;
+    @FXML
+    public Button toolsButton;
 
+    //Элементы окна авторизации
     @FXML
-    TextField loginField;
+    private TextField loginField;
     @FXML
-    PasswordField passwordField;
+    private PasswordField passwordField;
     @FXML
-    Button authButton;
+    private Button authButton;
     @FXML
-    TextArea authTextArea;
+    private TextArea authTextArea;
+    @FXML
+    private VBox authorizationPanel;
 
-    @FXML
-    VBox authorizationPanel;
-    @FXML
-    HBox chatPanel;
-
-    String IP_ADDRESS = "localhost";
-    int PORT = 8080;
+    private final String IP_ADDRESS = "localhost";
+    private final int PORT = 8080;
 
     Socket socket;
     DataInputStream in;
@@ -118,6 +135,16 @@ public class ClientController {
                                         labelYouDisconnect.setVisible(true);
                                         break;
                                     }
+                                    if (msg.startsWith("/getMyProfile")) {
+                                        infoTextArea.clear();
+                                        String info = msg.substring(14);
+                                        infoTextArea.appendText(info);
+                                    }
+                                    if (msg.startsWith("/newNick")) {
+                                        infoTextArea.clear();
+                                        String info = msg.substring(9);
+                                        infoTextArea.appendText(info);
+                                    }
                                 } else {
                                     textArea.appendText(msg);
                                 }
@@ -157,6 +184,34 @@ public class ClientController {
             out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
             loginField.clear();
             passwordField.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Открываем панель настроек и запрашиваем у сервера наш Ник
+    public void openTools() {
+        chatPanel.setVisible(false);
+        paneTools.setVisible(true);
+        try {
+            out.writeUTF("/getMyProfile");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //Закрываем панель настроек
+    public void closeTools() {
+        paneTools.setVisible(false);
+        chatPanel.setVisible(true);
+    }
+    public void openFieldForNewNick() {
+        newNickTextField.setVisible(true);
+    }
+    public void changeNick() {
+        try {
+            out.writeUTF("/newNick " + newNickTextField.getText());
+            newNickTextField.clear();
+            newNickTextField.setVisible(false);
         } catch (IOException e) {
             e.printStackTrace();
         }
