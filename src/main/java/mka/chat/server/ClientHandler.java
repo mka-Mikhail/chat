@@ -67,18 +67,19 @@ public class ClientHandler {
                                     server.sendOnlineUsers();
                                 }
                                 //личные сообщения
-                                if (str.startsWith("/w")) {
-                                    String[] personalMsg = str.split(" ");
+                                if (msg.startsWith("/w")) {
+                                    String[] personalMsg = msg.split(" ");
                                     String nickTo = personalMsg[1];
-                                    String msg = str.substring(3 + nickTo.length());
-                                    server.sendToClient(nickTo, ClientHandler.this, msg);
+                                    String totalMsg = msg.substring(3 + nickTo.length());
+                                    server.sendToClient(nickTo, ClientHandler.this, totalMsg);
                                 }
-                                if (str.startsWith("/show")){
+                                if (msg.startsWith("/show")){
                                     server.sendOnlineUsers();
                                 }
                                 continue;
+                            } else {
+                                server.sendToAllMsg(nickname + ": " + msg);//отправка сообщения
                             }
-                            server.sendToAllMsg(nickname + ": " + str);//отправка сообщения
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
