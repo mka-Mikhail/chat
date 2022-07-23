@@ -90,79 +90,76 @@ public class ClientController {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        //авторизация
-                        while (true) {
-                            try {
-                                String str = in.readUTF();
-                                if (str.startsWith("/authok")) {
-                                    setActive();
-                                    textArea.appendText(str);
-                                    break;
-                                } else {
-                                    authTextArea.clear();
-                                    authTextArea.appendText(str);
-                                }
-                            } catch (SocketException e) {
-                                System.out.println("Server don't callback");
+            new Thread(() -> {
+                try {
+                    //авторизация
+                    while (true) {
+                        try {
+                            String str = in.readUTF();
+                            if (str.startsWith("/authok")) {
+                                setActive();
+                                textArea.appendText(str);
                                 break;
+                            } else {
+                                authTextArea.clear();
+                                authTextArea.appendText(str);
                             }
+                        } catch (SocketException e) {
+                            System.out.println("Server don't callback");
+                            break;
                         }
+                    }
 
-                        //сообщения
-                        while (true) {
-                            try {
-                                String msg = in.readUTF();
-                                if (msg.startsWith("/")) {
-                                    if (msg.startsWith("/show")) {
-                                        String[] nicknames = msg.split(" ");
+                    //сообщения
+                    while (true) {
+                        try {
+                            String msg = in.readUTF();
+                            if (msg.startsWith("/")) {
+                                if (msg.startsWith("/show")) {
+                                    String[] nicknames = msg.split(" ");
 
-                                        Platform.runLater(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                clientList.getItems().clear();
+                                    Platform.runLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            clientList.getItems().clear();
 
-                                                for (int i = 1; i < nicknames.length; i++) {
-                                                    clientList.getItems().add(nicknames[i]);
-                                                }
+                                            for (int i = 1; i < nicknames.length; i++) {
+                                                clientList.getItems().add(nicknames[i]);
                                             }
-                                        });
-                                    }
-                                    if (msg.equals("/end")) {
-                                        labelYouDisconnect.setVisible(true);
-                                        break;
-                                    }
-                                    if (msg.startsWith("/getMyProfile")) {
-                                        infoTextArea.clear();
-                                        String info = msg.substring(14);
-                                        infoTextArea.appendText(info);
-                                    }
-                                    if (msg.startsWith("/newNick")) {
-                                        infoTextArea.clear();
-                                        String info = msg.substring(9);
-                                        infoTextArea.appendText(info);
-                                    }
-                                } else {
-                                    textArea.appendText(msg);
+                                        }
+                                    });
                                 }
-                            } catch (SocketException e){
-                                System.out.println("Server don't callback");
-                                break;
+                                if (msg.equals("/end")) {
+                                    labelYouDisconnect.setVisible(true);
+                                    break;
+                                }
+                                if (msg.startsWith("/getMyProfile")) {
+                                    infoTextArea.clear();
+                                    String info = msg.substring(14);
+                                    infoTextArea.appendText(info);
+                                }
+                                if (msg.startsWith("/newNick")) {
+                                    infoTextArea.clear();
+                                    String info = msg.substring(9);
+                                    infoTextArea.appendText(info);
+                                }
+                            } else {
+                                textArea.appendText(msg);
                             }
+                        } catch (SocketException e){
+                            System.out.println("Server don't callback");
+                            break;
                         }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        socket.close();
+                        in.close();
+                        out.close();
                     } catch (IOException e) {
                         e.printStackTrace();
-                    } finally {
-                        try {
-                            socket.close();
-                            in.close();
-                            out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
             }).start();

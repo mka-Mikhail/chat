@@ -1,3 +1,4 @@
 .idea/*
 out/*
 target/*
+users_db.db
